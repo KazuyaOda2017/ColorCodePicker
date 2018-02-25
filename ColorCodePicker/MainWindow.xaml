@@ -1,0 +1,126 @@
+﻿<Window x:Class="ColorCodePicker.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:u="clr-namespace:ColorCodePicker.UserControls"
+        xmlns:properties="clr-namespace:ColorCodePicker.Properties"
+        
+        Height="350" MinHeight="350"
+        Width="600" MinWidth="600"
+        AllowDrop="True"
+                      Drop="window_image_Drop"
+                      PreviewDragOver="window_image_PreviewDragOver"
+        PreviewDragLeave="Window_PreviewDragLeave"
+        ResizeMode="CanResize"
+        WindowStyle="None"
+       BorderBrush="{StaticResource WindowBorderColor}"
+        BorderThickness="1"
+        AllowsTransparency="True">
+    <Window.Resources>
+
+    </Window.Resources>
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="{x:Static SystemParameters.CaptionHeight}"
+                      ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}" />
+    </WindowChrome.WindowChrome>
+
+    <Grid AllowDrop="False" Background="White">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <u:TitleBar x:Name="titlebar" Title="{x:Static properties:Resources.windowTitle}"/>
+
+        </Grid>
+        <Border 
+            Grid.Row="1"
+            BorderBrush="{StaticResource WindowColor_Base}"
+                BorderThickness="3,0,3,3"
+            Margin="0,-1,0,0"
+                >
+            <Grid >
+                <Grid.ColumnDefinitions>
+
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <!--画像読み込み領域-->
+                <Grid Grid.Row="0"
+                >
+                    <Border x:Name="border_image" Width="300" Height="200" VerticalAlignment="Top" 
+                    BorderThickness="1" Margin="20" Background="White"
+                    AllowDrop="True"
+                      >
+                        <Border.BorderBrush>
+                            <VisualBrush>
+                                <VisualBrush.Visual>
+                                    <Rectangle StrokeDashArray="1 2"
+                       Stroke="Black"
+                       StrokeThickness="1"
+                       Width="{Binding RelativeSource={RelativeSource AncestorType=Border},Path=Width}"
+                       Height="{Binding RelativeSource={RelativeSource AncestorType=Border},Path=Height}"
+                       >
+                                    </Rectangle>
+                                </VisualBrush.Visual>
+                            </VisualBrush>
+                        </Border.BorderBrush>
+                        <Grid>
+                            <TextBlock FontSize="28" 
+                                       Foreground="LightGray"
+                                       Text="ここに画像を
+                                       ドラッグ＆ドロップ"
+                                       TextWrapping="Wrap"
+                                       Width="300"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       TextAlignment="Center"/>
+                            <Image x:Name="image" Width="{Binding ElementName=border_image,Path=Width}"
+                         Height="{Binding ElementName=border_image,Path=Height}"
+                                   ToolTip="拡大表示"
+                         Stretch="Uniform"
+                                   PreviewMouseLeftButtonUp="image_PreviewMouseLeftButtonUp">
+                                <Image.Style>
+                                    <Style TargetType="Image">
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="true">
+                                                <Setter Property="Cursor" Value="Hand"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Image.Style>
+                            </Image>
+                        </Grid>
+                        
+                    </Border>
+
+                </Grid>
+
+                <!--カラーリスト表示領域-->
+                <Grid Grid.Column="1">
+                   
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Row="0" HorizontalAlignment="Left"
+                          VerticalAlignment="Center">
+                        
+                        <TextBlock Text="カラーコード一覧" HorizontalAlignment="Left" Height="auto"  VerticalAlignment="Center"
+                                   Margin="10,10,10,0"/>
+                    </Grid>
+                    <Grid Grid.Row="1">
+                        <u:ColorListView x:Name="colorListView" 
+                             VerticalAlignment="Stretch"
+                             HorizontalAlignment="Stretch"
+                             Margin="10,0,10,10" Width="auto" Height="auto"/>
+                    </Grid>
+                       
+                    
+                </Grid>
+            </Grid>
+        </Border>
+      
+
+    </Grid>
+</Window>
