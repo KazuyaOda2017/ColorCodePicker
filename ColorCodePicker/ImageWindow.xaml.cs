@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -19,6 +20,10 @@ namespace ColorCodePicker
     /// </summary>
     public partial class ImageWindow : Window
     {
+        [DllImport("gdi32.dll", EntryPoint = "DeleteObject")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool DeleteObject([In] IntPtr hObject);
+
         #region イベント
         public delegate void ColorCodeCallBackEventHandler(System.Windows.Media.Color color);
         /// <summary>
@@ -57,6 +62,39 @@ namespace ColorCodePicker
         {
             get { return (BitmapImage)GetValue(ImageSourceProperty); }
             set { SetValue(ImageSourceProperty, value); }
+        }
+        #endregion
+
+        #region ImageBitmapSourceProperty
+        public static readonly DependencyProperty ImageBitmapSourceProperty =
+            DependencyProperty.Register("ImageBitmapSource", typeof(BitmapSource), typeof(ImageWindow),
+            new PropertyMetadata(null, new PropertyChangedCallback((sender, e) => {
+                (sender as ImageWindow).OnImageBitmapSourcePropertyChanged(sender, e);
+            })));
+
+        private void OnImageBitmapSourcePropertyChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            try
+            {
+                var bmpsource = (BitmapSource)e.NewValue;
+
+                if (bmpsource == null) return;
+
+                this.image.Source = bmpsource;
+
+                //画像サイズとピクセルサイズを合わせる
+                this.image.Height = bmpsource.PixelHeight;
+                this.image.Width = bmpsource.PixelWidth;
+            }
+            catch (Exception ex)
+            {
+            }
+        }
+
+        public BitmapSource ImageBitmapSource
+        {
+            get { return (BitmapSource)GetValue(ImageBitmapSourceProperty); }
+            set { SetValue(ImageBitmapSourceProperty, value); }
         }
         #endregion
 

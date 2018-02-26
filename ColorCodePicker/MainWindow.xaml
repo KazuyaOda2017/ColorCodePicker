@@ -14,7 +14,8 @@
         WindowStyle="None"
        BorderBrush="{StaticResource WindowBorderColor}"
         BorderThickness="1"
-        AllowsTransparency="True">
+        AllowsTransparency="True"
+        PreviewKeyUp="Window_PreviewKeyUp">
     <Window.Resources>
 
     </Window.Resources>
@@ -77,7 +78,7 @@
                                        TextAlignment="Center"/>
                             <Image x:Name="image" Width="{Binding ElementName=border_image,Path=Width}"
                          Height="{Binding ElementName=border_image,Path=Height}"
-                                   ToolTip="拡大表示"
+                                   ToolTip="PickWindow表示"
                          Stretch="Uniform"
                                    PreviewMouseLeftButtonUp="image_PreviewMouseLeftButtonUp">
                                 <Image.Style>

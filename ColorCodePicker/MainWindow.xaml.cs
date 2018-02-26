@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -188,12 +189,26 @@ namespace ColorCodePicker
         {
             try
             {
-                var bmp = (sender as Image).Source as BitmapImage;
-
-                if (bmp == null) return;
-
-                //画像ウィンドウを表示する
-                ShowImageWindow(bmp);
+                var source = (sender as Image).Source;
+                
+                if (source is BitmapImage)
+                {
+                    var bmp = source as BitmapImage;
+                    if (bmp != null)
+                    {
+                        //画像ウィンドウを表示する
+                        ShowImageWindow(bmp);
+                    }
+                }
+                else if (source is BitmapSource)
+                {
+                    var bmp = source as BitmapSource;
+                    if (bmp != null)
+                    {
+                        ShowImageWindow(bmp);
+                    }
+                }
+               
 
             }
             catch (Exception ex) { }
@@ -224,6 +239,87 @@ namespace ColorCodePicker
                 imageWindow.Show();
             }
             catch (Exception e)
+            {
+            }
+        }
+
+        private void ShowImageWindow(BitmapSource source)
+        {
+            try
+            {
+                //ImageWindow生成 インスタンスを使いまわす
+                if (imageWindow == null)
+                {
+                    imageWindow = new ImageWindow();
+
+                    //コールバックイベント登録
+                    imageWindow.ColorCodeCallBack += imageWindow_ColorCodeCallBack;
+                    //クローズイベントを登録
+                    imageWindow.Closed += imageWindow_Closed;
+                }
+
+                //画像セット
+                imageWindow.ImageBitmapSource = source;
+                imageWindow.Owner = this;
+
+                imageWindow.Show();
+            }
+            catch (Exception e)
+            {
+            }
+        }
+        #endregion
+
+        [DllImport("gdi32.dll", EntryPoint = "DeleteObject")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool DeleteObject([In] IntPtr hObject);
+
+        #region Windowのキーダウンイベント
+        private void Window_PreviewKeyUp(object sender, KeyEventArgs e)
+        {
+            try
+            {
+                if (e.Key == Key.V)
+                {
+                    ModifierKeys modifierkey = Keyboard.Modifiers;
+                    //Ctrl+Vを検知する
+                    if ((modifierkey & ModifierKeys.Control) != ModifierKeys.None)
+                    {
+
+                        //クリップボードにあるデータを取得する
+                        var clip = Clipboard.GetDataObject();
+
+                        var c_bmp = clip.GetData(typeof(System.Drawing.Bitmap)) as System.Drawing.Bitmap;
+                        //var c_bmp = clip.GetData(typeof(BitmapImage)) as BitmapImage;
+                        
+                        
+                        var bitmapsource = Clipboard.GetImage();
+                        if (bitmapsource != null)
+                        {
+
+                            var handle = c_bmp.GetHbitmap();
+
+                            try
+                            {
+                                var imagesource = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+
+
+                                this.image.Source = imagesource;
+
+
+                                this.ShowImageWindow(imagesource);
+                                return;
+                            }
+                            catch (Exception ex)
+                            {
+                            }
+
+                           
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
             {
             }
         }
